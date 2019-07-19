@@ -23,8 +23,8 @@ namespace bundlephobia
     {
         static HttpClient Client = new HttpClient();
         [FunctionName("Main")]
-        public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] SlackRequest req,
+        public static async Task Run(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] SlackRequest req,
             HttpResponse response,
             ILogger log)
         {
