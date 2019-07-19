@@ -40,6 +40,7 @@ namespace bundlephobia
             catch (Exception e)
             {
                 await Client.PostAsJsonAsync(req.response_url, new { text = $"Something went wrong" });
+                log.LogError(e, "error");
             }
 
         }
