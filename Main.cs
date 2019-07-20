@@ -17,10 +17,6 @@ namespace bundlephobia
     class SlackPost
     {
         public IEnumerable<object> attachments { get; set; }
-        [JsonProperty("unfurl_links")]
-        public bool unfurlLinks { get; set; } = true;
-        [JsonProperty("unfurl_media")]
-        public bool unfurlMedia { get; set; } = true;
 
     }
     public static class Main
@@ -52,7 +48,11 @@ namespace bundlephobia
                 {
                     attachments = new List<object>()
                     {
-                        new { text = $"https://bundlephobia.com/result?p={text}@{version}" },
+                        new {
+                            text = $"https://bundlephobia.com/result?p={text}@{version}",
+                            unfurl_links = true,
+                            unfurl_media = true
+                        },
                     }
                 };
                 await Client.PostAsJsonAsync(responseUrl, payload);
