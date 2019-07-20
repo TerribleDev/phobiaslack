@@ -41,6 +41,7 @@ namespace bundlephobia
             if (string.IsNullOrWhiteSpace(text))
             {
                 await Client.PostAsJsonAsync(responseUrl, new { text = $"😢 Please type a name of a package with /yikes packageName" });
+                return;
             }
             httpReq.HttpContext.Response.Clear();
             try
