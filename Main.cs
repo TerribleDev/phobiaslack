@@ -17,32 +17,27 @@ namespace bundlephobia
     public class SlackRequest
     {
         public string text { get; set; }
-        public string response_url { get; set; }
     }
     public static class Main
     {
         static HttpClient Client = new HttpClient();
         [FunctionName("Main")]
-        public static async Task Run(
+        public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] SlackRequest req,
             HttpRequest httpReq,
             ILogger log)
         {
-            var response = httpReq.HttpContext.Response;
-            response.StatusCode = 200;
-            response.Clear();
-            log.LogInformation(req.response_url);
             try
             {
                 var resp = await Client.GetAsync($"https://bundlephobia.com/api/package-history?package={req.text}");
                 var respData = JsonConvert.DeserializeObject<Dictionary<string, object>>(await resp.Content.ReadAsStringAsync());
                 var version = respData.Keys.OrderByDescending(a => a).First();
-                await Client.PostAsJsonAsync(req.response_url, new { text = $"https://bundlephobia.com/result?p={req.text}@{version}" });
+                return new JsonResult(new { text = $"https://bundlephobia.com/result?p={req.text}@{version}" });
             }
             catch (Exception e)
             {
                 log.LogError(e, "error");
-                await Client.PostAsJsonAsync(req.response_url, new { text = $"Something went wrong" });
+                return new JsonResult(new { text = $"Something went wrong" });
             }
 
         }
