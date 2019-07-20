@@ -31,17 +31,18 @@ namespace bundlephobia
             var response = httpReq.HttpContext.Response;
             response.StatusCode = 200;
             response.Clear();
+            log.LogInformation(req.response_url);
             try
             {
-                var resp = await Client.GetAsync($"https://bundlephobia.com/api/package-history?package=${req.text}");
+                var resp = await Client.GetAsync($"https://bundlephobia.com/api/package-history?package={req.text}");
                 var respData = JsonConvert.DeserializeObject<Dictionary<string, object>>(await resp.Content.ReadAsStringAsync());
                 var version = respData.Keys.OrderByDescending(a => a).First();
-                await Client.PostAsJsonAsync(req.response_url, new { text = $"https://bundlephobia.com/result?p={req.text}@${version}" });
+                await Client.PostAsJsonAsync(req.response_url, new { text = $"https://bundlephobia.com/result?p={req.text}@{version}" });
             }
             catch (Exception e)
             {
-                await Client.PostAsJsonAsync(req.response_url, new { text = $"Something went wrong" });
                 log.LogError(e, "error");
+                await Client.PostAsJsonAsync(req.response_url, new { text = $"Something went wrong" });
             }
 
         }
