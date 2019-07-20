@@ -41,7 +41,7 @@ namespace bundlephobia
                 var resp = await Client.GetAsync($"https://bundlephobia.com/api/package-history?package={text}");
                 var respData = JsonConvert.DeserializeObject<Dictionary<string, object>>(await resp.Content.ReadAsStringAsync());
                 var version = respData.Keys.OrderByDescending(a => a).First();
-                await Client.PostAsJsonAsync(responseUrl, new { text = $"https://bundlephobia.com/result?p={text}@{version}" });
+                await Client.PostAsJsonAsync(responseUrl, new { text = $"https://bundlephobia.com/result?p={text}@{version}", unfurl_links = true, unfurl_media = true });
             }
             catch (Exception e)
             {
