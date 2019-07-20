@@ -14,30 +14,39 @@ using System.Linq;
 
 namespace bundlephobia
 {
-    public class SlackRequest
-    {
-        public string text { get; set; }
-    }
     public static class Main
     {
         static HttpClient Client = new HttpClient();
         [FunctionName("Main")]
-        public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] SlackRequest req,
-            HttpRequest httpReq,
+        public static async Task Run(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest httpReq,
             ILogger log)
         {
+
+            var text = httpReq.Form["text"];
+            var responseUrl = httpReq.Form["response_url"];
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                throw new ArgumentNullException(nameof(text));
+            }
+            if (string.IsNullOrWhiteSpace(responseUrl))
+            {
+                throw new ArgumentNullException(nameof(text));
+            }
+            httpReq.HttpContext.Response.Clear();
+            log.LogInformation("form data", httpReq.Form);
+            log.LogInformation("body data", httpReq.Body);
             try
             {
-                var resp = await Client.GetAsync($"https://bundlephobia.com/api/package-history?package={req.text}");
+                var resp = await Client.GetAsync($"https://bundlephobia.com/api/package-history?package={text}");
                 var respData = JsonConvert.DeserializeObject<Dictionary<string, object>>(await resp.Content.ReadAsStringAsync());
                 var version = respData.Keys.OrderByDescending(a => a).First();
-                return new JsonResult(new { text = $"https://bundlephobia.com/result?p={req.text}@{version}" });
+                await Client.PostAsJsonAsync(responseUrl, new { text = $"https://bundlephobia.com/result?p={text}@{version}" });
             }
             catch (Exception e)
             {
+                await Client.PostAsJsonAsync(responseUrl, new { text = $"😢 Something went wrong" });
                 log.LogError(e, "error");
-                return new JsonResult(new { text = $"Something went wrong" });
             }
 
         }
