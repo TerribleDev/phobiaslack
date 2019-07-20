@@ -25,9 +25,10 @@ namespace bundlephobia
         [FunctionName("Main")]
         public static async Task Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] SlackRequest req,
-            HttpResponse response,
+            HttpRequest httpReq,
             ILogger log)
         {
+            var response = httpReq.HttpContext.Response;
             response.StatusCode = 200;
             response.Clear();
             try
