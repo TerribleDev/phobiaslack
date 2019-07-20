@@ -14,6 +14,15 @@ using System.Linq;
 
 namespace bundlephobia
 {
+    class SlackPost
+    {
+        public Dictionary<string, string> attachments { get; set; }
+        [JsonProperty("unfurl_links")]
+        public bool unfurlLinks { get; set; } = true;
+        [JsonProperty("unfurl_media")]
+        public bool unfurlMedia { get; set; } = true;
+
+    }
     public static class Main
     {
         static HttpClient Client = new HttpClient();
@@ -41,7 +50,13 @@ namespace bundlephobia
                 var resp = await Client.GetAsync($"https://bundlephobia.com/api/package-history?package={text}");
                 var respData = JsonConvert.DeserializeObject<Dictionary<string, object>>(await resp.Content.ReadAsStringAsync());
                 var version = respData.Keys.OrderByDescending(a => a).First();
-                await Client.PostAsJsonAsync(responseUrl, new { text = $"https://bundlephobia.com/result?p={text}@{version}", unfurl_links = true, unfurl_media = true });
+                await Client.PostAsJsonAsync(responseUrl, new SlackPost()
+                {
+                    attachments = new Dictionary<string, string>()
+                    {
+                        [text] = $"https://bundlephobia.com/result?p={text}@{version}"
+                    }
+                });
             }
             catch (Exception e)
             {
