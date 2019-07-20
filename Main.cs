@@ -16,7 +16,7 @@ namespace bundlephobia
 {
     class SlackPost
     {
-        public Dictionary<string, string> attachments { get; set; }
+        public IEnumerable<object> attachments { get; set; }
         [JsonProperty("unfurl_links")]
         public bool unfurlLinks { get; set; } = true;
         [JsonProperty("unfurl_media")]
@@ -50,9 +50,9 @@ namespace bundlephobia
                 var version = respData.Keys.OrderByDescending(a => a).First();
                 var payload = new SlackPost()
                 {
-                    attachments = new Dictionary<string, string>()
+                    attachments = new List<object>()
                     {
-                        ["text"] = $"https://bundlephobia.com/result?p={text}@{version}"
+                        new { text = $"https://bundlephobia.com/result?p={text}@{version}" },
                     }
                 };
                 await Client.PostAsJsonAsync(responseUrl, payload);
