@@ -16,7 +16,10 @@ namespace bundlephobia
 {
     class SlackPost
     {
-        public IEnumerable<object> attachments { get; set; }
+        public string text { get; set; }
+        public bool unfurl_links { get; set; } = true;
+        public bool unfurl_media { get; set; } = true;
+        public string response_type { get; set; } = "in_channel";
 
     }
     public static class Main
@@ -46,14 +49,7 @@ namespace bundlephobia
                 var version = respData.Keys.OrderByDescending(a => a).First();
                 var payload = new SlackPost()
                 {
-                    attachments = new List<object>()
-                    {
-                        new {
-                            text = $"https://bundlephobia.com/result?p={text}@{version}",
-                            unfurl_links = true,
-                            unfurl_media = true
-                        },
-                    }
+                    text = $"https://bundlephobia.com/result?p={text}@{version}",
                 };
                 await Client.PostAsJsonAsync(responseUrl, payload);
             }
