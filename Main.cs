@@ -43,20 +43,19 @@ namespace bundlephobia
                 throw new ArgumentNullException(nameof(text));
             }
             httpReq.HttpContext.Response.Clear();
-            log.LogInformation("form data", httpReq.Form);
-            log.LogInformation("body data", httpReq.Body);
             try
             {
                 var resp = await Client.GetAsync($"https://bundlephobia.com/api/package-history?package={text}");
                 var respData = JsonConvert.DeserializeObject<Dictionary<string, object>>(await resp.Content.ReadAsStringAsync());
                 var version = respData.Keys.OrderByDescending(a => a).First();
-                await Client.PostAsJsonAsync(responseUrl, new SlackPost()
+                var payload = new SlackPost()
                 {
                     attachments = new Dictionary<string, string>()
                     {
-                        [text] = $"https://bundlephobia.com/result?p={text}@{version}"
+                        ["text"] = $"https://bundlephobia.com/result?p={text}@{version}"
                     }
-                });
+                };
+                await Client.PostAsJsonAsync(responseUrl, payload);
             }
             catch (Exception e)
             {
