@@ -33,13 +33,14 @@ namespace bundlephobia
 
             var text = httpReq.Form["text"];
             var responseUrl = httpReq.Form["response_url"];
-            if (string.IsNullOrWhiteSpace(text))
-            {
-                throw new ArgumentNullException(nameof(text));
-            }
+
             if (string.IsNullOrWhiteSpace(responseUrl))
             {
                 throw new ArgumentNullException(nameof(text));
+            }
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                await Client.PostAsJsonAsync(responseUrl, new { text = $"😢 Please type a name of a package with /yikes packageName" });
             }
             httpReq.HttpContext.Response.Clear();
             try
